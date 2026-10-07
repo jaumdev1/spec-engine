@@ -1,7 +1,5 @@
 # ADLC — contratos formais e verificação SMT no desenvolvimento por agentes
 
-> Rótulo provisório deste projeto: **ADLC** (*Agent Development Life Cycle*). Isto **não** é um padrão estabelecido — a sigla colide com usos já correntes ("Application Development Life Cycle" e "Agentic Development Lifecycle" de mercado). Ver a nota de desambiguação completa em [`paper/paper.md`](paper/paper.md#12-nota-de-desambiguação-sobre-a-sigla-adlc).
-
 ## Proposta
 
 Investigamos se, e sob quais condições, agentes de IA que implementam código a partir de contratos formais revisados por humanos — com feedback de um verificador dedutivo baseado em SMT — produzem código mais conforme do que agentes sem essa camada, e a que custo. O texto completo, incluindo fundamentação teórica, revisão de trabalhos relacionados e metodologia experimental, está em [`paper/paper.md`](paper/paper.md).
