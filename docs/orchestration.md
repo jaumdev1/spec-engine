@@ -7,15 +7,18 @@ comando para executar, vá direto à seção "Como rodar".
 
 **Status honesto desta funcionalidade (2026-10-07):** o orquestrador está
 implementado e foi testado de ponta a ponta nesta sessão com o binário
-real do Dafny (4.11.0) e um backend simulado (`MockBackend`, respostas
-roteirizadas à mão, sem chamar nenhuma API). Os três grupos (A, B, C) e o
-mecanismo de defesa contra "gaming" de contrato (abaixo) foram exercitados
-e se comportaram como descrito. **Isto não é um experimento** — nenhuma
-chamada a um modelo real de verdade foi feita; os "agentes" nos testes
-desta sessão são respostas fixas que eu mesmo escrevi para validar o
-encanamento. Rodar isto com `--backend anthropic` contra um modelo real,
-em todas as cinco tarefas da Seção 7.2, é o próximo passo — ainda não
-feito.
+real do Dafny (4.11.0), de duas formas: (1) com `MockBackend` e respostas
+roteirizadas à mão, para validar o encanamento; e (2) com **agentes Claude
+reais** (via subagentes desta mesma sessão, não via `--backend anthropic`
+— ver Seção 10) respondendo aos prompts exatos dos três grupos, incluindo
+o laço de correção completo do grupo C. Os três grupos e o mecanismo de
+defesa contra "gaming" de contrato (Seção 2 abaixo) se comportaram como
+descrito nos dois modos de teste. **Isto ainda não é um experimento** no
+sentido da Seção 9 do paper: a validação com agente real desta sessão foi
+N=1 por grupo, não repetida, sem o caminho `--backend anthropic` (que
+chama a Messages API via HTTP) exercitado, e sem as outras quatro tarefas
+da Seção 7.2. Ver Seção 10 para os detalhes e limites exatos dessa
+validação.
 
 ## 1. O que o orquestrador precisa resolver
 
@@ -266,15 +269,25 @@ tentativa no terminal.
   caso real (Seção 3 acima).
 - `integrity_check.py` é um diff textual, não uma comparação semântica
   (Seção 2 acima).
-- Nenhuma chamada real a `AnthropicBackend` foi feita nesta sessão — só
-  `MockBackend` com respostas escritas à mão. O caminho de código existe
-  e foi revisado, mas "funciona com um modelo real, no primeiro uso" não
-  foi observado, só inferido.
+- Nenhuma chamada real a `AnthropicBackend` (o caminho HTTP via
+  `ANTHROPIC_API_KEY`) foi feita nesta sessão. O que foi validado com
+  agente real usou um caminho diferente — subagentes desta sessão, não a
+  classe `AnthropicBackend` — ver Seção 10. O caminho de código do
+  `AnthropicBackend` existe e foi revisado, mas "funciona com a Messages
+  API, no primeiro uso" não foi observado, só inferido.
 - Não há script de varredura (todas as tarefas × grupos × repetições) —
   cada chamada ao orquestrador roda uma tarefa/grupo por vez.
 - `human_intervention` está sempre `false` — não há, ainda, um ponto no
   fluxo onde uma pessoa intervém de fato (ex.: revisar uma proposta de
   mudança de contrato antes de continuar).
+- O prompt de sistema (`prompts/common/system_prompt.md`, regra 4) proíbe
+  explicitamente `assume`, `{:axiom}` e `{:trusted}`, mas **não** `expect`
+  — que tem semântica parecida (o verificador assume a condição como
+  verdadeira sem prová-la estaticamente; só o runtime checa de fato).
+  Isso foi encontrado de verdade na validação da Seção 10 (o agente do
+  Grupo A usou `expect` em vez de inferir `requires`) e ainda **não foi
+  corrigido** nesta versão — é uma lacuna real na lista de regras, não
+  hipotética.
 
 ## 9. Próximos passos
 
@@ -289,3 +302,61 @@ tentativa no terminal.
    variação").
 4. Só depois disso a Seção 11 do paper ("Resultados") para de ser
    `[RESULTADO FUTURO]`.
+
+## 10. Validação com agente real (2026-10-07)
+
+Depois dos testes com `MockBackend`, o encanamento foi exercitado de
+novo, na mesma sessão, com **agentes Claude reais** — não via
+`AnthropicBackend`/`ANTHROPIC_API_KEY`, mas invocando subagentes desta
+própria sessão do Claude Code, cada um **sem nenhum contexto da
+conversa** (instanciados do zero, sem ter visto `contract.dfy`,
+`reference_solution.dfy` ou qualquer arquivo de `tasks/`) e instruídos
+explicitamente a não ler nenhum arquivo do repositório. Cada subagente
+recebeu o prompt de sistema e o prompt de usuário **exatos** que
+`orchestrator.py` geraria (renderizados com as mesmas funções Python do
+módulo, não reescritos à mão), para a Tarefa 01.
+
+### O que foi feito
+
+| Grupo | Tentativa | O que o agente recebeu | Resultado real (Dafny 4.11.0) |
+|---|---|---|---|
+| A | 1 | Só o requisito em português + assinatura do método | `success` — o agente usou `expect amount >= 0; expect amount <= balance;` em vez de pré-condições formais (ver lacuna na Seção 8), mas o corpo reencaixado no contrato canônico verificou |
+| B | 1 | Requisito + contrato formal completo | `success` — contrato preservado caractere por caractere, corpo correto de primeira |
+| C | 1 | Requisito + contrato formal; pedi deliberadamente que a implementação tivesse um bug sutil e plausível, para exercitar o laço de correção (não teria sentido testar o laço se a tentativa 1 já acertasse) | `failure` — o agente escreveu um laço com off-by-one (`i <= amount` em vez de `i < amount`). O Dafny real reportou **dois** diagnósticos genuínos: `a postcondition could not be proved on this return path` e `result of operation might violate newtype constraint for 'Cents'` (a iteração extra arrisca estourar o limite do `newtype` dentro do laço) |
+| C | 2 | Um **segundo agente, instanciado do zero, sem ter visto o código da tentativa 1** — só os dois diagnósticos brutos acima, formatados exatamente como `_format_feedback()` faria | `success` — o agente trocou o laço por `remaining := balance - amount;` direto, eliminando a causa dos dois diagnósticos |
+
+A sequência C-tentativa-1 → C-tentativa-2 é a demonstração mais importante
+do mecanismo do grupo C: a correção não veio de o agente "lembrar" do que
+escreveu antes, veio exclusivamente do diagnóstico estruturado do
+verificador — exatamente a hipótese que o grupo C existe para testar.
+
+### Uma dificuldade real de engenharia encontrada no processo
+
+Pedir a um subagente para "retornar exatamente o texto que uma API
+retornaria" não bastou — por duas vezes (grupo C, tentativas 1 e 2), o
+subagente devolveu, no relatório final de handback, um **resumo
+descrevendo** o código (ex.: "usei um laço com off-by-one...") em vez do
+bloco de código literal. Foi preciso reenviar uma mensagem ao mesmo
+subagente insistindo explicitamente em texto literal, caractere por
+caractere, sem resumo. Isso é uma limitação de orquestração multi-agente
+desta sessão (não do Dafny nem do desenho A/B/C), mas vale registrar: um
+pipeline real que dependa de handback de subagente para extrair código
+precisa validar que recebeu código literal, não uma paráfrase, antes de
+escrever em um arquivo `.dfy`.
+
+### Limites honestos desta validação
+
+- N=1 por grupo — nenhuma repetição, não é uma amostra.
+- O bug da tentativa 1 do grupo C foi **pedido deliberadamente** (para
+  testar o laço), não um erro espontâneo do agente — isso mede "o laço de
+  correção funciona quando há algo a corrigir", não "com que frequência
+  um agente comete esse erro sozinho".
+- Os registros ficaram em
+  `scratchpad/.../results-real-agent-test/runs.jsonl`, fora do
+  repositório — **não** foram commitados em `results/runs.jsonl`, porque
+  isso não satisfaz a Seção 9.3 do paper (sem repetições, sem as outras
+  tarefas, ambiente ad-hoc). Ver a regra equivalente já registrada em
+  `results/README.md`.
+- O caminho `AnthropicBackend` (chamada HTTP real à Messages API) continua
+  não testado — o que foi validado aqui usa a infraestrutura de
+  subagentes desta sessão, um caminho de código diferente.
