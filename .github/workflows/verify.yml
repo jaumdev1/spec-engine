@@ -1,0 +1,37 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+
+env:
+  # Versão fixada deliberadamente (não "latest") por reprodutibilidade —
+  # ver Seção 9.3 do paper (controle de versão do verificador/solucionador).
+  # Atualizar apenas de forma deliberada e registrada, nunca automaticamente.
+  DAFNY_VERSION: "4.11.0"
+
+jobs:
+  dafny-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Dafny download
+        uses: actions/cache@v4
+        with:
+          path: dafny-dist
+          key: dafny-${{ env.DAFNY_VERSION }}-linux
+
+      - name: Download and extract Dafny
+        run: |
+          if [ ! -d dafny-dist ]; then
+            curl -L -o dafny.zip \
+              "https://github.com/dafny-lang/dafny/releases/download/v${DAFNY_VERSION}/dafny-${DAFNY_VERSION}-x64-ubuntu-22.04.zip"
+            mkdir -p dafny-dist
+            unzip -q dafny.zip -d dafny-dist
+          fi
+
+      - name: Verify Dafny examples
+        run: |
+          DAFNY_BIN=$(find dafny-dist -name dafny -type f | head -1)
+          "$DAFNY_BIN" verify examples/dafny/*.dfy

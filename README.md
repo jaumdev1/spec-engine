@@ -1,0 +1,52 @@
+# ADLC — contratos formais e verificação SMT no desenvolvimento por agentes
+
+> Rótulo provisório deste projeto: **ADLC** (*Agent Development Life Cycle*). Isto **não** é um padrão estabelecido — a sigla colide com usos já correntes ("Application Development Life Cycle" e "Agentic Development Lifecycle" de mercado). Ver a nota de desambiguação completa em [`paper/paper.md`](paper/paper.md#12-nota-de-desambiguação-sobre-a-sigla-adlc).
+
+## Proposta
+
+Investigamos se, e sob quais condições, agentes de IA que implementam código a partir de contratos formais revisados por humanos — com feedback de um verificador dedutivo baseado em SMT — produzem código mais conforme do que agentes sem essa camada, e a que custo. O texto completo, incluindo fundamentação teórica, revisão de trabalhos relacionados e metodologia experimental, está em [`paper/paper.md`](paper/paper.md).
+
+**Pergunta de pesquisa**: em quais condições a integração de contratos formais revisados e feedback de verificação dedutiva melhora a conformidade do código produzido por agentes, isolando o efeito do contrato do efeito do feedback do verificador — e qual é o custo dessa integração?
+
+## Status (2026-10-07)
+
+| Item | Status |
+|---|---|
+| Revisão de trabalhos relacionados | Feita (busca web, outubro/2026) — ver Seção 8 do paper. Algumas referências precisam de confirmação manual antes de submissão (ver `paper/references.bib`). |
+| Escolha de ferramenta de verificação | Decidida: **Dafny** (justificativa na Seção 7.1 do paper). |
+| Exemplo pedagógico | Implementado e testado localmente: `examples/dafny/withdrawal.dfy` verifica com Dafny 4.11.0 (`6 verified, 0 errors`). As duas variantes com bug proposital (comentadas no arquivo) foram testadas à parte e falham exatamente como descrito no paper — a de bananas por pós-condição não provada, a de centavos com `might violate newtype constraint for 'Cents'` (overflow como obrigação de prova). |
+| CI de verificação | Esqueleto implementado: `.github/workflows/verify.yml`. Ainda não validado rodando de fato em GitHub Actions (nenhum remoto configurado nesta sessão). |
+| Orquestrador (grupos A/B/C) | **Não implementado.** |
+| Prompts de agente | **Não escritos** além de anotações de intenção em `prompts/`. |
+| Execução experimental | **Não realizada.** Seções de resultados do paper são espaços reservados. |
+
+Nenhum número, gráfico ou taxa de sucesso neste repositório é real até que a seção "Resultados" do paper deixe de ter a marcação `[RESULTADO FUTURO]`.
+
+## Estrutura do repositório
+
+```
+paper/              paper em Markdown (paper.md) + bibliografia (references.bib)
+examples/dafny/      exemplos e contratos verificáveis
+prompts/             prompts e configurações dos agentes (a preencher)
+scripts/             scripts de execução e avaliação do experimento (a preencher)
+results/             esquema documentado para resultados futuros, sem dados fictícios
+.github/workflows/   CI de verificação
+```
+
+## Como reproduzir o que já existe
+
+Pré-requisito: [Dafny](https://github.com/dafny-lang/dafny) instalado localmente (versão fixada no CI — ver `.github/workflows/verify.yml` — para reprodutibilidade; não usar "latest" silenciosamente).
+
+```bash
+dafny verify examples/dafny/withdrawal.dfy
+```
+
+Deve reportar `Dafny program verifier finished with 6 verified, 0 errors` (testado nesta sessão com Dafny 4.11.0 em macOS arm64). Os métodos com bug proposital (Seção 4 do paper) estão comentados no arquivo — descomentar um deles reproduz o erro de verificação relatado no paper.
+
+## Licença
+
+Ainda não definida. Não assumir nenhuma licença implícita até que este arquivo seja atualizado.
+
+## Como contribuir / continuar o trabalho
+
+Este é um projeto de pesquisa em andamento, não um produto. Antes de adicionar qualquer resultado experimental, releia a Seção 6 do paper (regras de integridade do contrato) e a Seção 9 (metodologia) — a validade do experimento depende de registrar execuções com falha e resultados inconclusivos com o mesmo rigor que sucessos.

@@ -1,0 +1,149 @@
+% ============================================================================
+% Referências bibliográficas — projeto ADLC
+%
+% Cada entrada traz um comentário de proveniência:
+%   [VERIFICADO-SESSÃO]      -> confirmado via busca web nesta sessão (URL real conferida)
+%   [VERIFICAR-ANTES-SUBMETER] -> ID de arXiv no formato 2601.xxxxx (padrão jan/2026);
+%                                  confirmar que resolve em arxiv.org antes de citar
+%   [CLÁSSICO-NÃO-REVERIFICADO] -> referência fundacional amplamente conhecida,
+%                                  mas NÃO re-confirmada via busca nesta sessão específica;
+%                                  conferir diretamente (DBLP/ACM/editora) antes de submeter
+% ============================================================================
+
+% --- Fundamentos clássicos --------------------------------------------------
+
+@article{hoare1969axiomatic,
+  % [CLÁSSICO-NÃO-REVERIFICADO]
+  author  = {Hoare, C. A. R.},
+  title   = {An Axiomatic Basis for Computer Programming},
+  journal = {Communications of the ACM},
+  year    = {1969},
+  volume  = {12},
+  number  = {10},
+  pages   = {576--580}
+}
+
+@inproceedings{floyd1967assigning,
+  % [CLÁSSICO-NÃO-REVERIFICADO]
+  author    = {Floyd, Robert W.},
+  title     = {Assigning Meanings to Programs},
+  booktitle = {Proceedings of Symposium on Applied Mathematics},
+  year      = {1967},
+  volume    = {19},
+  pages     = {19--32}
+}
+
+@article{meyer1992applying,
+  % [CLÁSSICO-NÃO-REVERIFICADO]
+  author  = {Meyer, Bertrand},
+  title   = {Applying Design by Contract},
+  journal = {IEEE Computer},
+  year    = {1992},
+  volume  = {25},
+  number  = {10},
+  pages   = {40--51}
+}
+
+@inproceedings{demoura2008z3,
+  % [VERIFICADO-SESSÃO] -- confirmado via busca; URL canônica TACAS/Springer não
+  % localizada com confiança (links de mirror suspeitos descartados); citar via
+  % DBLP/Springer diretamente.
+  author    = {de Moura, Leonardo and Bj{\o}rner, Nikolaj},
+  title     = {{Z3}: An Efficient {SMT} Solver},
+  booktitle = {Tools and Algorithms for the Construction and Analysis of Systems (TACAS)},
+  year      = {2008}
+}
+
+@inproceedings{leino2010dafny,
+  % [VERIFICADO-SESSÃO] -- https://www.microsoft.com/en-us/research/publication/dafny-automatic-program-verifier-functional-correctness-2/
+  author    = {Leino, K. Rustan M.},
+  title     = {Dafny: An Automatic Program Verifier for Functional Correctness},
+  booktitle = {LPAR-16},
+  year      = {2010},
+  address   = {Dakar, Senegal}
+}
+
+@book{leino2023programproofs,
+  % [VERIFICADO-SESSÃO] -- ISBN 9780262546232
+  author    = {Leino, K. Rustan M.},
+  title     = {Program Proofs},
+  publisher = {MIT Press},
+  year      = {2023}
+}
+
+% --- Agentes de IA + verificação formal / feedback de verificador -----------
+
+@inproceedings{sun2024clover,
+  % [VERIFICADO-SESSÃO] -- https://arxiv.org/html/2310.17807v4 ; https://ai.stanford.edu/blog/clover
+  author    = {Sun, Chuyue and Sheng, Ying and Padon, Oded and Barrett, Clark},
+  title     = {Clover: Closed-Loop Verifiable Code Generation},
+  booktitle = {1st International Symposium on AI Verification (SAIV)},
+  year      = {2024}
+}
+
+@misc{baldur2023,
+  % [VERIFICADO-SESSÃO] -- https://arxiv.org/abs/2303.04910 ; lista de autores não
+  % confirmada no snippet de busca, conferir na página do arXiv antes de citar.
+  title = {Baldur: Whole-Proof Generation and Repair with Large Language Models},
+  year  = {2023},
+  note  = {arXiv:2303.04910}
+}
+
+@inproceedings{laurel2025,
+  % [VERIFICADO-SESSÃO] -- https://arxiv.org/abs/2405.16792
+  title     = {Laurel: Unblocking Automated Verification with Large Language Models},
+  booktitle = {SPLASH/OOPSLA},
+  year      = {2025},
+  note      = {arXiv:2405.16792}
+}
+
+@misc{dafnypro2026,
+  % [VERIFICAR-ANTES-SUBMETER] -- arXiv:2601.05385 (formato de ID sugere jan/2026)
+  title = {DafnyPro: LLM-Assisted Automated Verification for Dafny Programs},
+  year  = {2026},
+  note  = {arXiv:2601.05385 -- confirmar resolução em arxiv.org}
+}
+
+@inproceedings{aggarwal2025alphaverus,
+  % [VERIFICADO-SESSÃO] -- https://arxiv.org/abs/2412.06176
+  author    = {Aggarwal, Pranjal and others},
+  title     = {AlphaVerus: Bootstrapping Formally Verified Code Generation through Self-Improving Translation and Treefinement},
+  booktitle = {ICML},
+  year      = {2025}
+}
+
+@misc{generatecheckrepair2026,
+  % [VERIFICAR-ANTES-SUBMETER] -- arXiv:2601.12845 (formato de ID sugere jan/2026)
+  title = {Automatic Generation of Formal Specification and Verification Annotations Using LLMs and Test Oracles},
+  year  = {2026},
+  note  = {arXiv:2601.12845 -- confirmar resolução em arxiv.org}
+}
+
+@inproceedings{dafnybench2024,
+  % [VERIFICADO-SESSÃO] -- https://arxiv.org/html/2406.08467v1
+  title     = {DafnyBench: A Benchmark for Formal Software Verification},
+  booktitle = {NeurIPS Datasets and Benchmarks Track},
+  year      = {2024}
+}
+
+@inproceedings{chen2024selfdebug,
+  % [VERIFICADO-SESSÃO] -- https://arxiv.org/abs/2304.05128
+  author    = {Chen, Xinyun and Lin, Maxwell and Sch{\"a}rli, Nathanael and Zhou, Denny},
+  title     = {Teaching Large Language Models to Self-Debug},
+  booktitle = {ICLR},
+  year      = {2024}
+}
+
+@misc{compilerfeedback2024,
+  % [VERIFICADO-SESSÃO] -- arXiv:2403.14714; autores não confirmados no snippet
+  title = {Compiler Generated Feedback for Large Language Models},
+  year  = {2024},
+  note  = {arXiv:2403.14714}
+}
+
+@inproceedings{autoformalization2022,
+  % [VERIFICADO-SESSÃO] -- https://arxiv.org/pdf/2205.12615
+  title     = {Autoformalization with Large Language Models},
+  booktitle = {NeurIPS},
+  year      = {2022}
+}
