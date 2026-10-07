@@ -165,7 +165,7 @@ Comparamos Dafny e Java com JML/OpenJML como candidatos ao protótipo. Resumo da
 |---|---|---|
 | Manutenção | Ativa (patrocínio Amazon, releases frequentes, v4.11.0 ago/2025) | Projeto menor; página oficial de *features* está explicitamente marcada como desatualizada |
 | Geração de VCs | Boogie → Z3, versão fixada por release (reprodutibilidade) | Backend SMT configurável (mais flexível, mais variação entre execuções) |
-| Diagnóstico para automação | CLI com `--diagnosticsFormat json` (ainda sem schema versionado estável) | Saída majoritariamente texto livre, mais frágil para um orquestrador programático |
+| Diagnóstico para automação | CLI com `--json-output` (saída NDJSON; comportamento observado em 4.11.0, sem schema versionado estável — ver `docs/orchestration.md` §3; nota: uma versão anterior deste paper citou incorretamente `--diagnosticsFormat json`, flag que não existe) | Saída majoritariamente texto livre, mais frágil para um orquestrador programático |
 | Controle de `assume`/escapes | Flag `/noCheating` com níveis explícitos — mapeável diretamente às regras da Seção 6 | Mecanismo análogo existe, porém com documentação menos específica |
 | Lemas/indução | Construção de primeira classe (`lemma`) | Convenção via anotações, menos uniforme |
 | Semântica de overflow | `int` matemático por padrão (overflow precisa ser reintroduzido via `newtype`/`bv`) | Inteiros Java de largura fixa nativos — overflow é a semântica padrão |
@@ -242,7 +242,9 @@ O que foi **implementado** nesta versão do repositório:
 - Um exemplo verificável em Dafny (`examples/dafny/withdrawal.dfy`), cobrindo a função didática da Seção 4 e a variante com overflow explícito. Testado nesta sessão com Dafny 4.11.0: `6 verified, 0 errors`. As variantes com bug proposital (comentadas no arquivo) foram testadas separadamente e falham exatamente como descrito na Seção 4 — confirmando o contraexemplo de pós-condição e o erro `might violate newtype constraint for 'Cents'` para o caso de overflow.
 - Um workflow de CI que reexecuta `dafny verify` sobre os exemplos (ainda não validado rodando de fato em GitHub Actions nesta sessão — não há remoto configurado).
 
-O que **não** foi implementado: o orquestrador que executa os grupos A/B/C, os prompts de agente para as cinco tarefas da Seção 7.2 além da primeira, e qualquer pipeline de avaliação independente. Isso é hipótese de trabalho futuro, não resultado.
+O que foi implementado **depois** dessa primeira versão: o orquestrador que executa os grupos A/B/C (`scripts/orchestrator.py`), o parser do diagnóstico NDJSON do Dafny (`scripts/dafny_runner.py`), o auditor de integridade de contrato da Seção 6 (`scripts/integrity_check.py`, diff textual — não semântico) e o mecanismo de avaliação independente que reencaixa o corpo da submissão no contrato canônico antes de julgá-la (Seção 9.2; ver `docs/orchestration.md` §2 para o porquê disso ser necessário e para um teste real, rodado nesta sessão com o Dafny 4.11.0, mostrando que enfraquecer o próprio contrato não basta para "passar"). Isso foi testado de ponta a ponta com um backend simulado (respostas roteirizadas à mão, sem nenhuma chamada real a modelo), para a Tarefa 01 apenas.
+
+O que **ainda não** foi feito: nenhuma chamada real a um modelo de linguagem através do orquestrador; as tarefas 2–5 da Seção 7.2 ainda não têm o arnês de teste portado; não há script de varredura (tarefa × grupo × repetições); e, portanto, nenhuma execução experimental de fato. Isso continua sendo hipótese de trabalho futuro, não resultado — ver `docs/orchestration.md` §§8–9 para a lista honesta de limitações e próximos passos.
 
 ## 11. Resultados
 

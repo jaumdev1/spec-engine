@@ -1,6 +1,16 @@
 # Resultados — esquema documentado, sem dados fictícios
 
-Este diretório não contém nenhum resultado experimental nesta versão do repositório. O que segue é o **esquema** que os resultados devem seguir quando a metodologia da Seção 9 do paper for efetivamente executada.
+Este diretório não contém nenhum resultado experimental de verdade nesta
+versão do repositório — nenhuma chamada a um modelo real foi feita. O
+arquivo `runs.jsonl` que `scripts/orchestrator.py` produz (via
+`scripts/results_log.py`) segue exatamente o esquema abaixo; execuções de
+teste do próprio orquestrador, feitas nesta sessão com um backend
+simulado (`MockBackend`, sem chamada de API), **não foram commitadas
+aqui** — ver `docs/orchestration.md` para onde e como essas execuções de
+validação foram feitas. Qualquer `runs.jsonl` que vier a aparecer neste
+diretório com `model_version: "mock"` é, por definição, uma execução de
+teste do harness, não um dado experimental — nunca deve ser citado como
+resultado no paper.
 
 ## Esquema de registro por execução
 

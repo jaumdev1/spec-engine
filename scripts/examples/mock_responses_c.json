@@ -1,0 +1,4 @@
+[
+  "```dafny\nnewtype Cents = x: int | -0x8000_0000 <= x < 0x8000_0000\n\nmethod Debit(balance: Cents, amount: Cents) returns (remaining: Cents)\n  requires balance >= 0\n  requires 0 <= amount <= balance\n  ensures remaining == balance - amount\n  ensures remaining >= 0\n{\n  remaining := balance - amount - 1;\n}\n```\n",
+  "Vejo pelo diagnóstico que a pós-condição falhou. Corrigindo:\n\n```dafny\nnewtype Cents = x: int | -0x8000_0000 <= x < 0x8000_0000\n\nmethod Debit(balance: Cents, amount: Cents) returns (remaining: Cents)\n  requires balance >= 0\n  requires 0 <= amount <= balance\n  ensures remaining == balance - amount\n  ensures remaining >= 0\n{\n  remaining := balance - amount;\n}\n```\n"
+]

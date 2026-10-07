@@ -16,9 +16,9 @@ Investigamos se, e sob quais condições, agentes de IA que implementam código 
 | Escolha de ferramenta de verificação | Decidida: **Dafny** (justificativa na Seção 7.1 do paper). |
 | Exemplo pedagógico | Implementado e testado localmente: `examples/dafny/withdrawal.dfy` verifica com Dafny 4.11.0 (`6 verified, 0 errors`). As duas variantes com bug proposital (comentadas no arquivo) foram testadas à parte e falham exatamente como descrito no paper — a de bananas por pós-condição não provada, a de centavos com `might violate newtype constraint for 'Cents'` (overflow como obrigação de prova). |
 | CI de verificação | Esqueleto implementado: `.github/workflows/verify.yml`. Ainda não validado rodando de fato em GitHub Actions (nenhum remoto configurado nesta sessão). |
-| Orquestrador (grupos A/B/C) | **Não implementado.** |
-| Prompts de agente | **Não escritos** além de anotações de intenção em `prompts/`. |
-| Execução experimental | **Não realizada.** Seções de resultados do paper são espaços reservados. |
+| Orquestrador (grupos A/B/C) | **Implementado** (`scripts/orchestrator.py` e módulos auxiliares) e testado de ponta a ponta com o Dafny real + um backend simulado (sem chamadas de API) na Tarefa 01. Ver **`docs/orchestration.md`** para como funciona e como rodar, incluindo o mecanismo de defesa contra enfraquecimento de contrato (Seção 6) validado com três cenários reais. Nenhuma chamada a um modelo de verdade foi feita ainda. |
+| Prompts de agente | Templates genéricos para os três grupos implementados em `prompts/` (ver `prompts/README.md`). Cobrem a Tarefa 01; tarefas 2–5 ainda não têm arnês de teste. |
+| Execução experimental | **Não realizada.** Seções de resultados do paper são espaços reservados. O que existe são testes de validação do próprio harness (modo mock), não um experimento — ver `results/README.md`. |
 
 Nenhum número, gráfico ou taxa de sucesso neste repositório é real até que a seção "Resultados" do paper deixe de ter a marcação `[RESULTADO FUTURO]`.
 
@@ -26,9 +26,11 @@ Nenhum número, gráfico ou taxa de sucesso neste repositório é real até que 
 
 ```
 paper/              paper em Markdown (paper.md) + bibliografia (references.bib)
-examples/dafny/      exemplos e contratos verificáveis
-prompts/             prompts e configurações dos agentes (a preencher)
-scripts/             scripts de execução e avaliação do experimento (a preencher)
+examples/dafny/      exemplos e contratos verificáveis (material didático, Seção 4 do paper)
+tasks/               material de cada tarefa experimental (requisito, contrato fixo, testes) — só a Tarefa 01 por ora
+prompts/             templates de prompt dos grupos A/B/C
+scripts/             orquestrador dos grupos A/B/C e módulos auxiliares (ver docs/orchestration.md)
+docs/                documentação de como o orquestrador funciona e como rodá-lo
 results/             esquema documentado para resultados futuros, sem dados fictícios
 .github/workflows/   CI de verificação
 ```
@@ -42,6 +44,16 @@ dafny verify examples/dafny/withdrawal.dfy
 ```
 
 Deve reportar `Dafny program verifier finished with 6 verified, 0 errors` (testado nesta sessão com Dafny 4.11.0 em macOS arm64). Os métodos com bug proposital (Seção 4 do paper) estão comentados no arquivo — descomentar um deles reproduz o erro de verificação relatado no paper.
+
+Para rodar o orquestrador dos grupos A/B/C num modo que não chama API nenhuma (respostas simuladas, só para ver o encanamento funcionando):
+
+```bash
+python3 scripts/orchestrator.py --task task-01-debit --group C \
+  --backend mock --mock-responses scripts/examples/mock_responses_c.json \
+  --dafny-bin /caminho/para/dafny --max-attempts 3
+```
+
+Detalhes completos — incluindo como rodar com um modelo real — em [`docs/orchestration.md`](docs/orchestration.md).
 
 ## Licença
 
